@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Organizer,Event,User,Bookings
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
 
 #list the organizers
 def Org(request):
