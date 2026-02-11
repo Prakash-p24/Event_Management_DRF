@@ -8,10 +8,7 @@ from django.shortcuts import get_object_or_404
 #list the organizers
 def Org(request):
     try:
-        created = request.data.get('created_at')
-        updated = request.data.get('updated_at')
-        active = request.data.get('is_active')
-        organizer = Organizer.objects.exclude(created_at = created,updated_at = updated,is_active = active)
+        organizer = Organizer.objects.all()
         if organizer:
             serializer = ItemSerializerOrg(organizer, many=True)
             response_data = {
