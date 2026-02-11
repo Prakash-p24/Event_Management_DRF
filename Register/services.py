@@ -27,15 +27,11 @@ def Org(request):
 def Create(request):
     try:
         event_title = request.data.get('title')
-        print(event_title)
         item = ItemSerializerEve(data=request.data)
         if item.is_valid():
-            print("one")
-            if Event.objects.filter(title=event_title).exists():
-               print("two")
+            if Event.objects.filter(title=event_title).exists():              
                return Response({"error": "This data already exists"})
-            else:
-                print("three")
+            else:             
                 item.save()
                 response_data = {
                 "status_code": status.HTTP_201_CREATED,
@@ -53,10 +49,7 @@ def Create(request):
 #list the event
 def EventList(request):
     try:
-        created = request.data.get('created_at')
-        updated = request.data.get('updated_at')
-        active = request.data.get('is_active')
-        events = Event.objects.exclude(created_at = created,updated_at = updated,is_active = active)
+        events = Event.objects.all()
         if events:
             serializer = ItemSerializerEve(events, many=True)
             response_data = {
