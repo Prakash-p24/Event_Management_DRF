@@ -26,12 +26,12 @@ def Book(request):
     return CreateBookings(request)
 
 @api_view(['PATCH'])
-def UpdateUsers(request):
-    return UpdateUser(request)
+def UpdateUsers(request,pk):
+    return UpdateUser(request,pk)
 
 @api_view(['PUT'])
-def FullUpdateUsers(request):
-    return FullUpdateUser(request)
+def FullUpdateUsers(request,pk):
+    return FullUpdateUser(request,pk)
 
 @api_view(['DELETE'])
 def DeleteUsers(request):

@@ -146,12 +146,13 @@ def CreateBookings(request):
 
 #Partial Update User
 
-def UpdateUser(request):
+def UpdateUser(request,pk):
     try:
-        user_ids = request.data.get('user_id')
-        if not user_ids:
-            return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-        user_instance = User.objects.get(user_id=user_ids)
+        #payload
+        # user_ids = request.data.get('user_id')
+        # if not user_ids:
+        #     return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        user_instance = User.objects.get(user_id=pk)
         serializer = ItemSerializerUser(user_instance, data=request.data,partial = True)
         if serializer.is_valid():
             serializer.save()
@@ -169,18 +170,19 @@ def UpdateUser(request):
     
 #Full Update User
 
-def FullUpdateUser(request):
+def FullUpdateUser(request,pk):
     try:
-        user_ids = request.data.get('user_id')
-        if not user_ids:
-            return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-        user_instance = User.objects.get(user_id=user_ids)
+        #payload
+        # user_ids = request.data.get('user_id')
+        # if not user_ids:
+        #     return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        user_instance = User.objects.get(user_id=pk)
         serializer = ItemSerializerUser(user_instance, data=request.data)
         if serializer.is_valid():
             serializer.save()
             response_data = {
                 "status_code": status.HTTP_201_CREATED,
-                "message":"User Changed Successfully",
+                "message":"User Updated Successfully",
                 "Properties": serializer.data
                 }
             return Response(response_data, status=status.HTTP_200_OK)

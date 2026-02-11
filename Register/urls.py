@@ -8,7 +8,7 @@ urlpatterns = [
     path('create_user/',views.CreateUsers),
     path('user_list/',views.UsersList),
     path('bookings/',views.Book),
-    path('update_user/',views.UpdateUsers),
-    path('full_update/',views.FullUpdateUsers),
+    path('update_user/<uuid:pk>/',views.UpdateUsers),
+    path('full_update/<uuid:pk>/',views.FullUpdateUsers),
     path('delete_user/',views.DeleteUsers)
 ]
