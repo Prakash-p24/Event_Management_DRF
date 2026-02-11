@@ -16,7 +16,7 @@ def Org(request):
             }
             return Response(response_data, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         
     except:
         return Response({"error": "Unable to get Organizers"}, status=status.HTTP_400_BAD_REQUEST)
@@ -44,7 +44,7 @@ def Create(request):
                 }
                 return Response(response_data, status=status.HTTP_201_CREATED)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     
     except:
         return Response({"error": "Unable to Create Event"}, status=status.HTTP_400_BAD_REQUEST)
@@ -65,7 +65,7 @@ def EventList(request):
             }
             return Response(response_data, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         
     except:
         return Response({"error": "Unable to Return Event"}, status=status.HTTP_400_BAD_REQUEST)
@@ -87,7 +87,7 @@ def CreateUser(request):
             }
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     
     except:
         return Response({"error": "Unable to Create User"}, status=status.HTTP_400_BAD_REQUEST)
@@ -106,7 +106,7 @@ def UserList(request):
             }
             return Response(response_data, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         
     except:
         return Response({"error": "Unable to Return User"}, status=status.HTTP_400_BAD_REQUEST)
