@@ -3,6 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Organizer,Event,User,Bookings
 from rest_framework import serializers
+from rest_framework.response import Response
+from rest_framework import status
+# from django.contrib.auth import authenticate
+# from .jwt import get_tokens_for_user
+# from rest_framework.decorators import api_view,permission_classes
 
 #list the organizers
 def Org(request):
@@ -205,3 +210,79 @@ def DeleteUser(request):
         
     except:
         return Response({"error": "Unable to Update User"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    #JWT Token Creation
+
+    #eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcwODkyOTAwLCJpYXQiOjE3NzA4OTI2MDAsImp0aSI6IjE0NzA0NmU4ZTk1OTQzNTg5N2NjMDJjYzY0ZDgxYjc5IiwidXNlcl9pZCI6IjJkMWU2NmE5LTZmOTktNGFiZC1iODBiLWFkOThhYzA0OWVlOSJ9.Nxw8xEcZrHi1DwQvwI8ol4rKTkcaXHiCWmhIGPRnSBU
+import jwt
+import datetime
+from django.conf import settings
+from django.contrib.auth.hashers import check_password
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view
+from .models import User  # Your custom user model
+
+# def CreateJWT(request):
+#     username = request.data.get("user_name")
+#     password = request.data.get("password")
+
+#     user =User.objects.get(user_name=username,password=password)
+#     print(user)
+   
+#     payload = {
+      
+#         'jti': str(user.id),
+
+#         'user_id': str(user.id),
+#         'username': user.user_name,
+#         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
+#         'iat': datetime.datetime.utcnow()
+#     }
+
+#     # Generate token
+#     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+#     return Response({'token': token}, status=status.HTTP_200_OK)
+        
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from .models import User
+
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+
+def CreateJWT(request):
+    username = request.data.get("user_name")
+    password = request.data.get("password")
+
+    if not username or not password:
+        return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(user_name=username)
+    except User.DoesNotExist:
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Direct plain-text password check
+    if user.password != password:
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Generate JWT tokens
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
+
+    return Response({
+        "user_id": str(user.id),
+        "user_name": user.user_name,
+        "access": access_token,
+        "refresh": refresh_token
+    }, status=status.HTTP_200_OK)

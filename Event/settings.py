@@ -27,7 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+# AUTHENTICATION_BACKENDS = [
+#     'Register.jwt.PlainTextBackend',
+# ]
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,8 +40,29 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'Register',
+    'Register',  # your app
+    'rest_framework_simplejwt',
 ]
+
+AUTH_USER_MODEL = "Register.User"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
