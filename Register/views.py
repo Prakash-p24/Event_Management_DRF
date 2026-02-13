@@ -1,7 +1,8 @@
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .services import Org,Create,EventList,CreateUser,UserList,CreateBookings,UpdateUser,FullUpdateUser,DeleteUser,CreateJWT
+from .services import Create,EventList,CreateUser,UserList,CreateBookings,UpdateUser,FullUpdateUser,DeleteUser,CreateJWT
 from rest_framework.response import Response
+from .models import Bookings
 
 @api_view(['GET'])
 def DisplayEvent(request):
@@ -43,22 +44,12 @@ def DeleteUsers(request):
 def CreateJwts(request):
     return CreateJWT(request)
 
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from .models import Bookings
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def protected_view(request):
+def subscribed_events(request):
     user = request.user
     print(user)
-
-    # Get all bookings for this user
     user_bookings = Bookings.objects.filter(user_id=user, is_active=True).select_related('event_id')
-
-    # Prepare booking + event details
     bookings_list = []
     for booking in user_bookings:
         event = booking.event_id

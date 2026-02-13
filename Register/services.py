@@ -5,50 +5,55 @@ from .models import Organizer,Event,User,Bookings
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework import status
-# from django.contrib.auth import authenticate
-# from .jwt import get_tokens_for_user
-# from rest_framework.decorators import api_view,permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken
+from datetime import datetime,date
+import datetime
+
 
 #list the organizers
-def Org(request):
-    try:
-        organizer = Organizer.objects.all()
-        if organizer:
-            serializer = ItemSerializerOrg(organizer, many=True)
-            response_data = {
-            "status_code": status.HTTP_200_OK,
-            "Properties": serializer.data
-            }
-            return Response(response_data, status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        
-    except:
-        return Response({"error": "Unable to get Organizers"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
 #create the event
+
+
+
 def Create(request):
-    try:
+    try:        # Get date from request
+        event_date_str = request.data.get('date')
+        if not event_date_str:
+            return Response({"error": "Date is required"}, status=status.HTTP_400_BAD_REQUEST)
+        datetime_object = datetime.datetime.strptime(event_date_str, '%Y-%m-%d')
+        date_only_object = datetime_object.date()
+        today = date.today()
+        if date_only_object < today:
+            return Response({"error": "Event cannot be created in the past"}, status=status.HTTP_400_BAD_REQUEST)
+
         event_title = request.data.get('title')
-        item = ItemSerializerEve(data=request.data)
-        if item.is_valid():
-            if Event.objects.filter(title=event_title).exists():              
-               return Response({"error": "This data already exists"})
-            else:             
-                item.save()
-                response_data = {
+        if not event_title:
+            return Response({"error": "Title is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if Event.objects.filter(title=event_title).exists():
+            return Response({"error": "This event already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ItemSerializerEve(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
                 "status_code": status.HTTP_201_CREATED,
-                "message":"Event Created Successfully",
-                "Properties": item.data
-                }
-                return Response(response_data, status=status.HTTP_201_CREATED)
+                "message": "Event Created Successfully",
+                "Properties": serializer.data
+            }, status=status.HTTP_201_CREATED)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-    except:
-        return Response({"error": "Unable to Create Event"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return Response({"error": f"Unable to create event: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
     
 
 #list the event
@@ -125,7 +130,16 @@ def CreateBookings(request):
     except:
         return Response({"Message":"Error occured in Filtering"})
     
-    if queryset:
+    
+
+    today = date.today()
+    if queryset.date<today:
+           return Response({"Message":"Event is Expired"})
+    
+    elif queryset.available_seats == 0:
+           return Response({"Message":"Event is Fulled"})
+        
+    elif queryset:
         queryset.available_seats -=1
         queryset.save()
     item = ItemSerializerBook(data=request.data)
@@ -210,54 +224,7 @@ def DeleteUser(request):
         
     except:
         return Response({"error": "Unable to Update User"}, status=status.HTTP_400_BAD_REQUEST)
-    
-
-
-    #JWT Token Creation
-
-    #eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcwODkyOTAwLCJpYXQiOjE3NzA4OTI2MDAsImp0aSI6IjE0NzA0NmU4ZTk1OTQzNTg5N2NjMDJjYzY0ZDgxYjc5IiwidXNlcl9pZCI6IjJkMWU2NmE5LTZmOTktNGFiZC1iODBiLWFkOThhYzA0OWVlOSJ9.Nxw8xEcZrHi1DwQvwI8ol4rKTkcaXHiCWmhIGPRnSBU
-import jwt
-import datetime
-from django.conf import settings
-from django.contrib.auth.hashers import check_password
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
-from .models import User  # Your custom user model
-
-# def CreateJWT(request):
-#     username = request.data.get("user_name")
-#     password = request.data.get("password")
-
-#     user =User.objects.get(user_name=username,password=password)
-#     print(user)
    
-#     payload = {
-      
-#         'jti': str(user.id),
-
-#         'user_id': str(user.id),
-#         'username': user.user_name,
-#         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
-#         'iat': datetime.datetime.utcnow()
-#     }
-
-#     # Generate token
-#     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-#     return Response({'token': token}, status=status.HTTP_200_OK)
-        
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from .models import User
-
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
 
 def CreateJWT(request):
     username = request.data.get("user_name")

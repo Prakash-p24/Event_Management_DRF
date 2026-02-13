@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'Register',  # your app
     'rest_framework_simplejwt',
+    'organizer',
 ]
 
 AUTH_USER_MODEL = "Register.User"
